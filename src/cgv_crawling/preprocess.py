@@ -13,8 +13,9 @@ import pandas as pd
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 
 DATA_DIR = PROJECT_DIR / 'data'
-RAW_CSV_PATH = DATA_DIR / 'raw' / 'cgv_movie_raw.csv'
-FINAL_CSV_PATH = DATA_DIR / 'cgv_movie_clean.csv'
+TODAY_STR = pd.Timestamp.today().strftime('%Y%m%d')
+RAW_CSV_PATH = DATA_DIR / 'raw' / f'cgv_movie_raw_{TODAY_STR}.csv'
+FINAL_CSV_PATH = DATA_DIR / f'cgv_movie_clean_{TODAY_STR}.csv'
 
 FINAL_COLUMNS = [
     'rank',

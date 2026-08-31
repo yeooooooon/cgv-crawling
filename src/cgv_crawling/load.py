@@ -2,6 +2,7 @@
 CGV 무비차트 최종 데이터를 MySQL에 저장
 """
 
+from datetime import datetime
 from pathlib import Path
 import os
 
@@ -13,8 +14,8 @@ import pymysql
 
 ## 프로젝트 루트 (cgv_crawling 폴더)
 PROJECT_DIR = Path(__file__).resolve().parents[1]
-
-FINAL_CSV_PATH = PROJECT_DIR / 'data' / 'cgv_movie_clean.csv'
+TODAY_STR = datetime.now().strftime('%Y%m%d')
+FINAL_CSV_PATH = PROJECT_DIR / 'data' / f'cgv_movie_clean_{TODAY_STR}.csv'
 
 DB_COLUMNS = [
     'rank',

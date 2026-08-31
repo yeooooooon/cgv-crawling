@@ -64,7 +64,8 @@ PROJECT_DIR = Path(__file__).resolve().parents[1]
 
 DATA_DIR = PROJECT_DIR / 'data'
 RAW_DIR = DATA_DIR / 'raw'
-RAW_CSV_PATH = RAW_DIR / 'cgv_movie_raw.csv'
+TODAY_STR = datetime.now().strftime('%Y%m%d')
+RAW_CSV_PATH = RAW_DIR / f'cgv_movie_raw_{TODAY_STR}.csv'
 
 print(f'프로젝트 기준 경로 : {PROJECT_DIR}')
 print(f'Raw CSV 저장 경로 : {RAW_CSV_PATH}')
