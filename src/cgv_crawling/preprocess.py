@@ -10,7 +10,7 @@ import pandas as pd
 
 
 ## 프로젝트 루트 (cgv_crawling 폴더)
-PROJECT_DIR = Path(__file__).resolve().parents[1]
+PROJECT_DIR = Path(__file__).resolve().parents[2]
 
 DATA_DIR = PROJECT_DIR / 'data'
 TODAY_STR = pd.Timestamp.today().strftime('%Y%m%d')
