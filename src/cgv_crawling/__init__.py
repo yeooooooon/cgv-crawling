@@ -1,4 +1,5 @@
-from .crawling import download_posters, run_crawling
+from .crawling import run_crawling
+from .poster import download_posters
 from .preprocess import run_preprocess
 from .load import run_load
 
