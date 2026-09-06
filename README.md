@@ -21,6 +21,7 @@ CGV 무비차트 웹페이지를 Selenium으로 크롤링하여 영화 순위, �
 - **파일 저장**: 원본 및 정제 데이터를 CSV로 저장
 - **DB 저장**: 정제 데이터를 MySQL `movie_chart` 데이터베이스의 `cgv_movies` 테이블에 저장
 - **검증**: CSV와 MySQL의 저장 행 수 비교
+- **테스트**: 외부 서비스 없이 크롤링, 전처리, 포스터, MySQL 저장 로직 검증
 
 ## 4. 기술 스택
 - **Language**: Python
@@ -42,7 +43,48 @@ CGV 무비차트 웹페이지를 Selenium으로 크롤링하여 영화 순위, �
 8. 정제 데이터를 MySQL `movie_chart` 데이터베이스의 `cgv_movies` 테이블에 저장
 9. CSV와 MySQL의 저장 건수를 비교해 결과 검증
 
-## 6. 주요 데이터 컬럼
+## 6. 실행 방법
+
+### 의존성 설치
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+### 전체 파이프라인 실행
+
+실제 실행에는 Chrome/Selenium과 MySQL 서버가 필요합니다. 프로젝트 루트의 `.env`에 다음 DB 설정을 입력합니다.
+
+```text
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your-password
+DB_NAME=movie_chart
+```
+
+그 다음 파이프라인을 실행합니다.
+
+```bash
+python main.py
+```
+
+### 테스트 실행
+
+테스트는 CGV, 포스터 CDN, MySQL에 실제로 접속하지 않고 가짜 응답과 커넥션을 사용합니다.
+
+```bash
+python -m pytest -v
+```
+
+현재 테스트 범위:
+
+- `test_crawling.py`: 텍스트, URL, 영화 카드 파싱
+- `test_preprocess.py`: 컬럼 변환과 데이터 정제
+- `test_poster.py`: 포스터 파일 저장
+- `test_load.py`: MySQL INSERT 값과 commit 처리
+
+## 7. 주요 데이터 컬럼
 - `rank`: 무비차트 순위
 - `title`: 영화명
 - `egg_index`: CGV 에그지수
@@ -54,11 +96,11 @@ CGV 무비차트 웹페이지를 Selenium으로 크롤링하여 영화 순위, �
 - `crawled_at`: 데이터 수집 시각
 - `source_url`: 원본 CGV 페이지 URL
 
-## 7. 프로젝트 구조
+## 8. 프로젝트 구조
 ```text
 cgv_crawling/
-├── cgv_crawling.ipynb             # 수집 및 전처리 과정 확인용 노트북
 ├── main.py                        # 전체 파이프라인 실행 파일
+├── cgv_crawling.ipynb             # 수집 및 전처리 과정 확인용 노트북
 ├── data/
 │   ├── cgv_movie_clean.csv        # 정제된 영화 데이터
 │   └── raw/
@@ -66,20 +108,26 @@ cgv_crawling/
 │       └── posters/YYYYMMDD/      # 날짜별 포스터 이미지
 ├── src/
 │   ├── cgv_crawling/
+│   │   ├── config.py              # 공통 경로와 실행 설정
 │   │   ├── crawling.py            # CGV 무비차트 수집
+│   │   ├── poster.py              # 포스터 다운로드
 │   │   ├── load.py                # MySQL 저장 및 검증
 │   │   └── preprocess.py          # 데이터 전처리
-│   └── data/                      # 패키지 내부 데이터 사본
-└── .gitignore                     # 환경 변수 및 로컬 파일 제외
+├── tests/                         # 외부 서비스 없는 단위 테스트
+├── docs/pipeline.md               # 파이프라인 모듈 문서
+├── requirements.txt               # 실행 의존성
+├── requirements-dev.txt           # 테스트 의존성
+├── pyproject.toml                 # pytest 설정
+└── .github/workflows/ci.yml       # GitHub Actions 테스트
 ```
 
-## 8. 기대 효과
+## 9. 기대 효과
 - 반복적인 무비차트 데이터 수집 자동화
 - 크롤링 원본과 정제 데이터의 단계별 관리
 - CSV와 MySQL을 활용한 데이터 분석 및 서비스 확장
 - 영화 순위, 관객 수, 에그지수 기반의 추가 분석으로 확장 가능
 
-## 09. 데이터 출처
+## 10. 데이터 출처
 본 프로젝트는 CGV 무비차트 페이지의 공개 정보를 대상으로 합니다.
 
 - [CGV 무비차트](https://cgv.co.kr/cnm/cgvChart/movieChart?tabParam=144)
