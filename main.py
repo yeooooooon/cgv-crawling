@@ -2,7 +2,12 @@
 CGV 무비차트 데이터 수집 파이프라인을 순서대로 실행
 """
 
-from src.cgv_crawling import run_crawling, run_load, run_preprocess
+from src.cgv_crawling import (
+    download_posters,
+    run_crawling,
+    run_load,
+    run_preprocess,
+)
 
 
 def main() -> None:
@@ -11,6 +16,7 @@ def main() -> None:
     """
 
     raw_df = run_crawling()
+    download_posters(raw_df)
     clean_df = run_preprocess(raw_df)
     saved_count = run_load(clean_df)
 

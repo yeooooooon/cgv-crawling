@@ -5,6 +5,7 @@ CGV 무비차트 페이지를 Selenium으로 수집
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urljoin
+from urllib.request import Request, urlopen
 import re
 import time
 
@@ -66,6 +67,7 @@ DATA_DIR = PROJECT_DIR / 'data'
 RAW_DIR = DATA_DIR / 'raw'
 TODAY_STR = datetime.now().strftime('%Y%m%d')
 RAW_CSV_PATH = RAW_DIR / f'cgv_movie_raw_{TODAY_STR}.csv'
+POSTER_DIR = RAW_DIR / 'posters' / TODAY_STR
 
 print(f'프로젝트 기준 경로 : {PROJECT_DIR}')
 print(f'Raw CSV 저장 경로 : {RAW_CSV_PATH}')
@@ -344,6 +346,54 @@ def save_raw_csv(raw_df: pd.DataFrame) -> Path:
     raw_df.to_csv(RAW_CSV_PATH, index=False, encoding='utf-8-sig')
 
     return RAW_CSV_PATH
+
+
+def download_posters(
+    raw_df: pd.DataFrame,
+    poster_date: str | None = None,
+) -> int:
+    """
+    수집한 포스터 URL을 날짜별 raw/posters 폴더에 저장한다.
+
+    Args:
+        raw_df:
+            포스터 URL이 포함된 무비차트 원본 데이터프레임
+        poster_date:
+            저장할 날짜 폴더명(YYYYMMDD). 지정하지 않으면 오늘 날짜를 사용한다.
+
+    Returns:
+        다운로드에 성공한 포스터 개수
+    """
+
+    poster_dir = RAW_DIR / 'posters' / (poster_date or TODAY_STR)
+    poster_dir.mkdir(parents=True, exist_ok=True)
+    downloaded_count = 0
+
+    for _, row in raw_df.iterrows():
+        poster_url = row.get('poster_url')
+        if pd.isna(poster_url) or not str(poster_url).strip():
+            continue
+
+        output_path = poster_dir / f"{int(row['rank']):02d}.jpg"
+
+        try:
+            request = Request(
+                str(poster_url),
+                headers={'User-Agent': USER_AGENT},
+            )
+            with urlopen(request, timeout=PAGE_LOAD_TIMEOUT) as response:
+                output_path.write_bytes(response.read())
+
+            downloaded_count += 1
+            print(f'포스터 저장 완료: {output_path.name}')
+
+        except Exception as error:
+            print(f"포스터 다운로드 실패 ({row.get('title', '-')}) : {error}")
+
+    print(f'포스터 저장 건수 : {downloaded_count}건')
+    print(f'포스터 저장 경로 : {poster_dir}')
+
+    return downloaded_count
 
 
 def run_crawling(url: str = TARGET_URL, headless: bool = True) -> pd.DataFrame:
