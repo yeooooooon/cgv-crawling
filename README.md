@@ -84,7 +84,39 @@ python -m pytest -v
 - `test_poster.py`: 포스터 파일 저장
 - `test_load.py`: MySQL INSERT 값과 commit 처리
 
-## 7. 주요 데이터 컬럼
+## 7. AWS SAM 배포
+
+이 프로젝트는 Selenium과 Chrome을 함께 실행해야 하므로 Lambda 컨테이너 이미지 방식으로 배포합니다.
+Docker Desktop과 AWS SAM CLI를 설치한 뒤 프로젝트 루트에서 실행합니다.
+
+```bash
+cd /d/AI/data_analytics/crawling/cgv_crawling
+sam build --use-container
+sam deploy --guided
+```
+
+`sam deploy --guided`에서는 다음 값을 입력합니다.
+
+- Stack Name: `cgv-crawling`
+- AWS Region: `us-east-1`
+- `DBHost`: Lambda에서 접근 가능한 MySQL 주소
+- `DBPort`: `3306`
+- `DBUser`: MySQL 사용자
+- `DBPassword`: MySQL 비밀번호
+- `DBName`: `movie_chart`
+
+배포 후 수동 실행은 다음과 같습니다.
+
+```bash
+sam local invoke CgvCrawlingFunction \
+	--event events/crawling-event.json
+```
+
+매일 실행하는 EventBridge 스케줄은 `template.yaml`의 `Enabled` 값을 `true`로 바꾼 뒤 다시 배포합니다.
+
+GitHub Actions로 배포하려면 저장소 Secrets에 `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`을 등록하고 `Deploy CGV crawling pipeline` workflow를 수동 실행합니다.
+
+## 8. 주요 데이터 컬럼
 - `rank`: 무비차트 순위
 - `title`: 영화명
 - `egg_index`: CGV 에그지수
@@ -96,7 +128,7 @@ python -m pytest -v
 - `crawled_at`: 데이터 수집 시각
 - `source_url`: 원본 CGV 페이지 URL
 
-## 8. 프로젝트 구조
+## 9. 프로젝트 구조
 ```text
 cgv_crawling/
 ├── main.py                        # 전체 파이프라인 실행 파일
@@ -121,13 +153,13 @@ cgv_crawling/
 └── .github/workflows/ci.yml       # GitHub Actions 테스트
 ```
 
-## 9. 기대 효과
+## 10. 기대 효과
 - 반복적인 무비차트 데이터 수집 자동화
 - 크롤링 원본과 정제 데이터의 단계별 관리
 - CSV와 MySQL을 활용한 데이터 분석 및 서비스 확장
 - 영화 순위, 관객 수, 에그지수 기반의 추가 분석으로 확장 가능
 
-## 10. 데이터 출처
+## 11. 데이터 출처
 본 프로젝트는 CGV 무비차트 페이지의 공개 정보를 대상으로 합니다.
 
 - [CGV 무비차트](https://cgv.co.kr/cnm/cgvChart/movieChart?tabParam=144)

@@ -11,6 +11,7 @@ import time
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
@@ -71,10 +72,20 @@ def build_driver(headless: bool = True) -> webdriver.Chrome:
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--disable-gpu')
+    options.add_argument('--single-process')
+    options.add_argument('--no-zygote')
+    options.add_argument('--remote-debugging-port=9222')
+    options.add_argument('--user-data-dir=/tmp/chrome')
     options.add_argument('--window-size=1440,1200')
     options.add_argument(f'user-agent={USER_AGENT}')
 
-    driver = webdriver.Chrome(options=options)
+    chrome_binary = Path('/usr/bin/google-chrome-stable')
+    chromedriver_binary = Path('/usr/local/bin/chromedriver')
+    if chrome_binary.is_file():
+        options.binary_location = str(chrome_binary)
+
+    service = Service(str(chromedriver_binary)) if chromedriver_binary.is_file() else None
+    driver = webdriver.Chrome(service=service, options=options)
     driver.set_page_load_timeout(PAGE_LOAD_TIMEOUT)
 
     return driver

@@ -13,9 +13,10 @@ import pymysql
 
 
 ## 프로젝트 루트 (cgv_crawling 폴더)
-PROJECT_DIR = Path(__file__).resolve().parents[1]
+PROJECT_DIR = Path(__file__).resolve().parents[2]
+DATA_DIR = Path(os.getenv('DATA_DIR', PROJECT_DIR / 'data'))
 TODAY_STR = datetime.now().strftime('%Y%m%d')
-FINAL_CSV_PATH = PROJECT_DIR / 'data' / f'cgv_movie_clean_{TODAY_STR}.csv'
+FINAL_CSV_PATH = DATA_DIR / f'cgv_movie_clean_{TODAY_STR}.csv'
 
 DB_COLUMNS = [
     'rank',

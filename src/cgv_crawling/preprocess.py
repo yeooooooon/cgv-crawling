@@ -5,6 +5,7 @@ CGV 무비차트 원본(raw) 데이터를 정제
 from pathlib import Path
 from urllib.parse import urljoin
 import re
+import os
 
 import pandas as pd
 
@@ -12,7 +13,7 @@ import pandas as pd
 ## 프로젝트 루트 (cgv_crawling 폴더)
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 
-DATA_DIR = PROJECT_DIR / 'data'
+DATA_DIR = Path(os.getenv('DATA_DIR', PROJECT_DIR / 'data'))
 TODAY_STR = pd.Timestamp.today().strftime('%Y%m%d')
 RAW_CSV_PATH = DATA_DIR / 'raw' / f'cgv_movie_raw_{TODAY_STR}.csv'
 FINAL_CSV_PATH = DATA_DIR / f'cgv_movie_clean_{TODAY_STR}.csv'

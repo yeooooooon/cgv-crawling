@@ -3,3 +3,7 @@
 .vscode/
 __pycache__/
 *.py[cod]
+.aws-sam/
+sam-build.log
+sam-build-*.log
+lambda-response.json
