@@ -45,6 +45,9 @@ Resources:
           DB_PASSWORD: !Ref DBPassword
           DB_NAME: !Ref DBName
           DATA_BUCKET: !Ref DataBucket
+          HOME: /tmp
+          XDG_CONFIG_HOME: /tmp/.config
+          XDG_CACHE_HOME: /tmp/.cache
       Events:
         ManualRun:
           Type: Schedule
@@ -72,7 +75,7 @@ Resources:
           Type: Schedule
           Properties:
             Schedule: cron(0 1 * * ? *)
-            Enabled: false
+            Enabled: true
             Input: '{"source":"step-functions-schedule","action":"run-crawling"}'
 
 Outputs:

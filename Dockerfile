@@ -1,6 +1,9 @@
 FROM public.ecr.aws/lambda/python:3.12
 
-ENV DATA_DIR=/tmp/data
+ENV DATA_DIR=/tmp/data \
+    HOME=/tmp \
+    XDG_CONFIG_HOME=/tmp/.config \
+    XDG_CACHE_HOME=/tmp/.cache
 
 RUN dnf install -y \
     atk \

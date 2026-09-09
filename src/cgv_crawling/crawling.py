@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from urllib.parse import urljoin
 import re
+import tempfile
 import time
 
 import pandas as pd
@@ -67,15 +68,19 @@ def build_driver(headless: bool = True) -> webdriver.Chrome:
     options = Options()
 
     if headless:
-        options.add_argument('--headless=new')
+        options.add_argument('--headless')
 
     options.add_argument('--no-sandbox')
+    options.add_argument('--disable-setuid-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--disable-gpu')
-    options.add_argument('--single-process')
-    options.add_argument('--no-zygote')
-    options.add_argument('--remote-debugging-port=9222')
-    options.add_argument('--user-data-dir=/tmp/chrome')
+    options.add_argument('--disable-software-rasterizer')
+    options.add_argument('--disable-extensions')
+    options.add_argument('--no-first-run')
+    options.add_argument('--no-default-browser-check')
+    options.add_argument(
+        f'--user-data-dir={tempfile.mkdtemp(prefix="chrome-", dir="/tmp")}'
+    )
     options.add_argument('--window-size=1440,1200')
     options.add_argument(f'user-agent={USER_AGENT}')
 
