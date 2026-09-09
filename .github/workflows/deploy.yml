@@ -30,8 +30,8 @@ jobs:
           --no-confirm-changeset
           --no-fail-on-empty-changeset
           --parameter-overrides
-          DBHost=${{ secrets.DB_HOST }}
-          DBPort=${{ secrets.DB_PORT }}
-          DBUser=${{ secrets.DB_USER }}
-          DBPassword=${{ secrets.DB_PASSWORD }}
-          DBName=${{ secrets.DB_NAME }}
+          DBHost="${{ secrets.DB_HOST }}"
+          DBPort="${{ secrets.DB_PORT }}"
+          DBUser="${{ secrets.DB_USER }}"
+          DBPassword="${{ secrets.DB_PASSWORD }}"
+          DBName="${{ secrets.DB_NAME }}"
