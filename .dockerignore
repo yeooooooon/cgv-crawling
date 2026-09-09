@@ -1,0 +1,10 @@
+.git
+.venv
+.pytest_cache
+.ruff_cache
+.ipynb_checkpoints
+__pycache__
+data
+cgv_crawling.ipynb
+.env
+.aws-sam
