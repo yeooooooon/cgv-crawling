@@ -1,4 +1,4 @@
-name: Deploy CGV crawling pipeline
+name: 'CD'
 
 on:
   workflow_dispatch:
