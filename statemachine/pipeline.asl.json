@@ -1,0 +1,36 @@
+{
+    "Comment": "Run the CGV crawling pipeline",
+    "StartAt": "RunCgvPipeline",
+    "States": {
+        "RunCgvPipeline": {
+            "Type": "Task",
+            "Resource": "${CgvCrawlingFunctionArn}",
+            "Retry": [
+                {
+                    "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                    ],
+                    "IntervalSeconds": 5,
+                    "MaxAttempts": 2,
+                    "BackoffRate": 2
+                }
+            ],
+            "Catch": [
+                {
+                    "ErrorEquals": [
+                        "States.ALL"
+                    ],
+                    "Next": "PipelineFailed"
+                }
+            ],
+            "End": true
+        },
+        "PipelineFailed": {
+            "Type": "Fail",
+            "Error": "CgvPipelineFailed",
+            "Cause": "The CGV crawling Lambda failed"
+        }
+    }
+}

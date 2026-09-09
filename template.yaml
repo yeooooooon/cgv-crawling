@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: CGV movie chart crawling pipeline
+
+Parameters:
+  DBHost:
+    Type: String
+    Description: MySQL host reachable from the Lambda VPC/network
+  DBPort:
+    Type: String
+    Default: '3306'
+  DBUser:
+    Type: String
+  DBPassword:
+    Type: String
+    NoEcho: true
+  DBName:
+    Type: String
+    Default: movie_chart
+  DataBucket:
+    Type: String
+    Default: cgv-crawling-databucket
+    Description: Existing S3 bucket for raw, interim, and processed outputs
+
+Resources:
+  CgvCrawlingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Timeout: 900
+      MemorySize: 2048
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+              Resource: !Sub arn:${AWS::Partition}:s3:::${DataBucket}/*
+      EphemeralStorage:
+        Size: 2048
+      Environment:
+        Variables:
+          DB_HOST: !Ref DBHost
+          DB_PORT: !Ref DBPort
+          DB_USER: !Ref DBUser
+          DB_PASSWORD: !Ref DBPassword
+          DB_NAME: !Ref DBName
+          DATA_BUCKET: !Ref DataBucket
+      Events:
+        ManualRun:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 1 * * ? *)
+            Enabled: false
+            Input: '{"source":"schedule","action":"run-crawling"}'
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: latest
+
+  CgvPipelineStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      DefinitionUri: statemachine/pipeline.asl.json
+      DefinitionSubstitutions:
+        CgvCrawlingFunctionArn: !GetAtt CgvCrawlingFunction.Arn
+      Type: STANDARD
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: !Ref CgvCrawlingFunction
+      Events:
+        DailyPipeline:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 1 * * ? *)
+            Enabled: false
+            Input: '{"source":"step-functions-schedule","action":"run-crawling"}'
+
+Outputs:
+  CgvCrawlingFunctionArn:
+    Description: CGV crawling Lambda function ARN
+    Value: !GetAtt CgvCrawlingFunction.Arn
+  CgvPipelineStateMachineArn:
+    Description: CGV pipeline Step Functions state machine ARN
+    Value: !Ref CgvPipelineStateMachine

@@ -1,0 +1,15 @@
+version = 0.1
+
+[default]
+[default.global.parameters]
+region = "ap-northeast-2"
+
+[default.deploy.parameters]
+stack_name = "cgv-crawling"
+resolve_image_repos = true
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+fail_on_empty_changeset = false
+resolve_s3 = true
+s3_prefix = "cgv-crawling"
+parameter_overrides = "DBHost=\"cgv-crawling-db.c3y4g6iaslfp.ap-northeast-2.rds.amazonaws.com\" DBPort=\"3306\" DBUser=\"cgvadmin\" DBName=\"cgvdb\" DataBucket=\"cgv-crawling-databucket\""
